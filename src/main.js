@@ -61,6 +61,7 @@ async function main() {
     const itemBody = getBody(payload) || '';
     core.info(`itemBody: ${JSON.stringify(itemBody)}`);
     core.info(`payload: ${JSON.stringify(payload)}`);
+    core.info(`item: ${JSON.stringify(item)}`);
 
     if (itemType == ItemType.issue) {
       // Validate issue

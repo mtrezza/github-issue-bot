@@ -6422,6 +6422,7 @@ async function main() {
     const itemBody = getBody(payload) || '';
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`payload: ${JSON.stringify(payload)}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`item: ${JSON.stringify(item)}`);
 
     if (itemType == ItemType.issue) {
       // Validate issue
