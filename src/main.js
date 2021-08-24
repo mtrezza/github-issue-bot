@@ -79,7 +79,7 @@ async function main() {
     const message = composeComment(issueMessage, payload)
 
     // Post comment
-    core.info(`Adding comment "${message}" to ${itemType} #${item.number}...`);
+    core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
     await postComment(client, itemType, item, message);
 
     // Close item
