@@ -20,7 +20,7 @@ async function main() {
     // Get client
     const context = github.context;
     const payload = context.payload;
-    const client = github.getOctokit(githubToken, { required: true });
+    const client = github.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {
@@ -64,21 +64,21 @@ async function main() {
 
     core.debug(`Adding comment "${message}" to ${issueType} #${issue.number}...`);
     if (isIssue) {
-      await client.issues.createComment({
+      await client.rest.issues.createComment({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         body: message
       });
       core.debug('Closing issue...');
-      await client.issues.update({
+      await client.rest.issues.update({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         state: 'closed'
       });
     } else {
-      await client.pulls.createReview({
+      await client.rest.pulls.createReview({
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,
@@ -86,7 +86,7 @@ async function main() {
         event: 'COMMENT'
       });
       core.debug('Closing PR...');
-      await client.pulls.update({
+      await client.rest.pulls.update({
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,

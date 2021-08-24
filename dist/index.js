@@ -6381,7 +6381,7 @@ async function main() {
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
     const payload = context.payload;
-    const client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { required: true });
+    const client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {
@@ -6425,21 +6425,21 @@ async function main() {
 
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Adding comment "${message}" to ${issueType} #${issue.number}...`);
     if (isIssue) {
-      await client.issues.createComment({
+      await client.rest.issues.createComment({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         body: message
       });
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Closing issue...');
-      await client.issues.update({
+      await client.rest.issues.update({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         state: 'closed'
       });
     } else {
-      await client.pulls.createReview({
+      await client.rest.pulls.createReview({
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,
@@ -6447,7 +6447,7 @@ async function main() {
         event: 'COMMENT'
       });
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Closing PR...');
-      await client.pulls.update({
+      await client.rest.pulls.update({
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,
