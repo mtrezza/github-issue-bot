@@ -6372,6 +6372,8 @@ const ItemState = Object.freeze({
   'closed': 'closed',
 });
 
+const messageIdMetaTag = '\n<!-- github-issue-bot-meta-tag-id -->';
+
 async function main() {
   try {
     // Define parameters
@@ -6419,10 +6421,10 @@ async function main() {
 
     // Get event details
     const item = context.issue;
-    const itemBody = getBody(payload) || '';
+    const itemBody = getItemBody(payload) || '';
+    const itemState = getItemState(payload);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`payload: ${JSON.stringify(payload)}`);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`item: ${JSON.stringify(item)}`);
 
     if (itemType == ItemType.issue) {
       // Validate issue
@@ -6435,14 +6437,22 @@ async function main() {
       if (invalidValidations.length > 0) {
 
         // Compose comment
-        const message = composeComment(issueMessage, payload)
+        let message = composeComment(issueMessage, payload);
+        message = message + messageIdMetaTag;
 
         // Post comment
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
         await postComment(client, itemType, item, message);
 
-        // Close item
-        await setItemState(client, itemType, item, ItemState.closed);
+        const comment = await findComment(client, issue, "github-issue-bot");
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`comment: ${comment}`);
+
+        // If item is open
+        // if (itemState != ItemState.closed) {
+
+        //   // Close item
+        //   await setItemState(client, itemType, item, ItemState.closed);
+        // }
 
       } else {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
@@ -6466,40 +6476,22 @@ async function getIssueData(client, issue) {
   return data;
 }
 
-async function getComment(client, issue, position) {
-
+async function findComment(client, issue, text) {
   const params = {
     owner: issue.owner,
     repo: issue.repo,
     issue_number: issue.number,
   }
 
-  // client.rest.issues.listComments
+  for await (const { data: comments } of client.paginate.iterator(
+    client.rest.issues.listComments,
+    params
+  )) {
+    const comment = comments.find(comment => comment.includes(text));
+    if (comment) return comment
+  }
 
-  // if (inputs.direction == 'first') {
-  //   for await (const {data: comments} of octokit.paginate.iterator(
-  //     octokit.rest.issues.listComments,
-  //     parameters
-  //   )) {
-  //     // Search each page for the comment
-  //     const comment = comments.find(comment =>
-  //       findCommentPredicate(inputs, comment)
-  //     )
-  //     if (comment) return comment
-  //   }
-  // } else {
-  //   // direction == 'last'
-  //   const comments = await octokit.paginate(
-  //     octokit.rest.issues.listComments,
-  //     parameters
-  //   )
-  //   comments.reverse()
-  //   const comment = comments.find(comment =>
-  //     findCommentPredicate(inputs, comment)
-  //   )
-  //   if (comment) return comment
-  // }
-  // return undefined
+  return undefined
 }
 
 function validatePattern(patterns, text) {
@@ -6514,12 +6506,21 @@ function validatePattern(patterns, text) {
   return validations;
 }
 
-function getBody(payload) {
+function getItemBody(payload) {
   if (payload.issue && payload.issue.body) {
     return payload.issue.body;
   }
   if (payload.pull_request && payload.pull_request.body) {
     return payload.pull_request.body;
+  }
+}
+
+function getItemState(payload) {
+  if (payload.issue && payload.issue.state) {
+    return payload.issue.state;
+  }
+  if (payload.pull_request && payload.pull_request.state) {
+    return payload.pull_request.state;
   }
 }
 
@@ -6547,14 +6548,6 @@ async function postComment(client, type, issue, message) {
 }
 
 async function setItemState(client, type, issue, state) {
-
-  // If item already has state
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`setItemState: current state: ${issue.state}; new state: ${state}`);
-  if (issue.state == state) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`setItemState: item already in state ${state}`);
-    return;
-  }
-
   switch(type) {
     case ItemType.issue:
       await client.rest.issues.update({
