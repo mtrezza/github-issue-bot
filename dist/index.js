@@ -6389,7 +6389,7 @@ async function main() {
     const client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
-    if ([!'opened', 'reopened'].includes(payload.action)) {
+    if (!['opened', 'reopened'].includes(payload.action)) {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('No issue or PR opened or reopened, skipping.');
       return;
     }

@@ -28,7 +28,7 @@ async function main() {
     const client = github.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
-    if ([!'opened', 'reopened'].includes(payload.action)) {
+    if (!['opened', 'reopened'].includes(payload.action)) {
       core.info('No issue or PR opened or reopened, skipping.');
       return;
     }
