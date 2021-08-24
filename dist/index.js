@@ -6426,13 +6426,8 @@ async function main() {
     }
 
 
-    const params = {
-      owner: issue.owner,
-      repo: issue.repo,
-      issue_number: issue.number,
-    }
-    const comments = await client.rest.issues.listComments(params);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(issue));
+    const issueData = await client.rest.issues.get(issue);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(issueData));
 
     // Compose comment
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Composing comment from template...');

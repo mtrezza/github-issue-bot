@@ -65,13 +65,8 @@ async function main() {
     }
 
 
-    const params = {
-      owner: issue.owner,
-      repo: issue.repo,
-      issue_number: issue.number,
-    }
-    const comments = await client.rest.issues.listComments(params);
-    core.info(JSON.stringify(issue));
+    const issueData = await client.rest.issues.get(issue);
+    core.info(JSON.stringify(issueData));
 
     // Compose comment
     core.info('Composing comment from template...');
