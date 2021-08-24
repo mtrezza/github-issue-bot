@@ -126,7 +126,7 @@ async function findComment(client, issue, text) {
     client.rest.issues.listComments,
     params
   )) {
-    const comment = comments.find(comment => comment.includes(text));
+    const comment = comments.find(comment => comment.body.includes(text));
     if (comment) return comment
   }
 
