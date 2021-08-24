@@ -6367,6 +6367,11 @@ const ItemType = Object.freeze({
   'issue': 'issue',
 });
 
+const ItemState = Object.freeze({
+  'opened': 'opened',
+  'closed': 'closed',
+});
+
 async function main() {
   try {
     // Define parameters
@@ -6389,8 +6394,8 @@ async function main() {
     const client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
-    if (!['opened', 'reopened'].includes(payload.action)) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('No issue or PR opened or reopened, skipping.');
+    if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('No issue or PR opened, reopened or edited, skipping.');
       return;
     }
 
@@ -6420,6 +6425,7 @@ async function main() {
     const item = context.issue;
     const itemBody = getBody(payload) || '';
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`payload: ${JSON.stringify(payload)}`);
 
     if (itemType == ItemType.issue) {
       // Validate issue
@@ -6438,7 +6444,7 @@ async function main() {
         await postComment(client, itemType, item, message);
 
         // Close item
-        // await closeItem(client, itemType, item);
+        // await setItemState(client, itemType, item, ItemState.closed);
 
       } else {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
@@ -6542,14 +6548,14 @@ async function postComment(client, type, issue, message) {
   }
 }
 
-async function closeItem(client, type, issue) {
+async function setItemState(client, type, issue, state) {
   switch(type) {
     case ItemType.issue:
       await client.rest.issues.update({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
-        state: 'closed'
+        state: state
       });
       break;
 
@@ -6558,7 +6564,7 @@ async function closeItem(client, type, issue) {
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,
-        state: 'closed'
+        state: state
       });
       break;
   }
