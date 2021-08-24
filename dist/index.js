@@ -6567,6 +6567,8 @@ async function createComment(message) {
 }
 
 async function updateComment(id, message) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: id: ${id}, message: ${message}`);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: itemType: ${itemType}, item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({

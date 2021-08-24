@@ -206,6 +206,8 @@ async function createComment(message) {
 }
 
 async function updateComment(id, message) {
+  core.debug(`updateComment: id: ${id}, message: ${message}`);
+  core.debug(`updateComment: itemType: ${itemType}, item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({
