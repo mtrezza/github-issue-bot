@@ -6371,7 +6371,7 @@ async function main() {
   try {
     // Define parameters
     const issuePatterns = [
-      { regex: '(- [x] I am not disclosing a vulnerability)' },
+      { regex: '- \\[x\\] I am not disclosing a vulnerability' },
     ];
 
     // Get action parameters
@@ -6427,13 +6427,12 @@ async function main() {
     }
 
     // Get issue
-    const { issueBody } = await getIssueData(client, item);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`body: ${JSON.stringify(issueBody)}`);
+    // const { issueBody } = await getIssueData(client, item);
+    // core.info(`body: ${JSON.stringify(issueBody)}`);
 
     // Validate issue
     const validations = validatePattern(issuePatterns, itemBody);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
-
 
 
     // Compose comment
@@ -6498,6 +6497,26 @@ async function getComment(client, issue, position) {
   // return undefined
 }
 
+function validatePattern(patterns, text) {
+  const validations = [];
+  for (const pattern of patterns) {
+    const regex = new RegExp(pattern.regex);
+
+    const validation = Object.assign({}, pattern);
+    validation.ok = text.match(regex);
+    validations.push(validation);
+  }
+  return validations;
+}
+
+function getBody(payload) {
+  if (payload.issue && payload.issue.body) {
+    return payload.issue.body;
+  }
+  if (payload.pull_request && payload.pull_request.body) {
+    return payload.pull_request.body;
+  }
+}
 
 async function postComment(client, type, issue, message) {
   switch(type) {
@@ -6541,27 +6560,6 @@ async function closeItem(client, type, issue) {
         state: 'closed'
       });
       break;
-  }
-}
-
-function validatePattern(patterns, text) {
-  const validations = [];
-  for (const pattern of patterns) {
-    const regex = new RegExp(pattern.regex);
-
-    const validation = Object.assign({}, pattern);
-    validation.ok = text.match(regex);
-    validations.push(validation);
-  }
-  return validations;
-}
-
-function getBody(payload) {
-  if (payload.issue && payload.issue.body) {
-    return payload.issue.body;
-  }
-  if (payload.pull_request && payload.pull_request.body) {
-    return payload.pull_request.body;
   }
 }
 
