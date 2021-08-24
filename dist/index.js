@@ -6468,10 +6468,11 @@ function composeMessage({ requireCheckboxes } = {}) {
   }
 
   // Fill placeholders
-  //message = fillPlaceholders(message, payload);
+  message = fillPlaceholders(message, payload);
 
   // Add meta tag
-  //message += `\n${messageIdMetaTag}`;
+  message += `\n${messageIdMetaTag}`;
+  return message;
 }
 
 async function findComment(text) {
