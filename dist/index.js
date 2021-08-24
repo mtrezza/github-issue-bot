@@ -6457,25 +6457,6 @@ async function main() {
   }
 }
 
-async function postComment(message) {
-  // Find existing bot comment
-  const comment = await findComment("github-issue-bot");
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`comment: ${JSON.stringify(comment)}`);
-
-  // If no bot comment exists
-  if (comment) {
-
-    // Update existing comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
-    await updateComment(comment.id, message);
-  } else {
-
-    // Post new comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
-    await createComment(message);
-  }
-}
-
 function composeMessage({ requireCheckboxes } = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
@@ -6540,6 +6521,25 @@ function getItemState(payload) {
   }
   if (payload.pull_request && payload.pull_request.state) {
     return payload.pull_request.state;
+  }
+}
+
+async function postComment(message) {
+  // Find existing bot comment
+  const comment = await findComment("github-issue-bot");
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`comment: ${JSON.stringify(comment)}`);
+
+  // If no bot comment exists
+  if (comment) {
+
+    // Update existing comment
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
+    await updateComment(comment.id, message);
+  } else {
+
+    // Post new comment
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
+    await createComment(message);
   }
 }
 
