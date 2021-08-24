@@ -6427,7 +6427,8 @@ async function main() {
       // Validate issue
       const validations = validatePattern(issuePatterns, itemBody);
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
-      const invalidValidations = validations.filter(validation => { validation.ok });
+      const invalidValidations = validations.filter(validation => { validation.ok === true });
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`invalidValidations: ${JSON.stringify(invalidValidations)}`);
 
       // If validation failed
       if (invalidValidations.length > 0) {
