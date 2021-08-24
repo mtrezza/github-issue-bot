@@ -6368,7 +6368,7 @@ const ItemType = Object.freeze({
 });
 
 const ItemState = Object.freeze({
-  'opened': 'opened',
+  'open': 'open',
   'closed': 'closed',
 });
 
@@ -6417,10 +6417,6 @@ async function main() {
       throw new Error('No sender provided by GitHub.');
     }
 
-    // Get issue
-    // const { issueBody } = await getIssueData(client, item);
-    // core.info(`body: ${JSON.stringify(issueBody)}`);
-
     // Get event details
     const item = context.issue;
     const itemBody = getBody(payload) || '';
@@ -6444,7 +6440,7 @@ async function main() {
         await postComment(client, itemType, item, message);
 
         // Close item
-        // await setItemState(client, itemType, item, ItemState.closed);
+        await setItemState(client, itemType, item, ItemState.closed);
 
       } else {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
@@ -6549,6 +6545,13 @@ async function postComment(client, type, issue, message) {
 }
 
 async function setItemState(client, type, issue, state) {
+
+  // If item already has state
+  if (issue.state == state) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`setItemState: item already in state ${state}`);
+    return;
+  }
+
   switch(type) {
     case ItemType.issue:
       await client.rest.issues.update({
