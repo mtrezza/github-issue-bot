@@ -6444,7 +6444,7 @@ async function main() {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
         await postComment(client, itemType, item, message);
 
-        const comment = await findComment(client, issue, "github-issue-bot");
+        const comment = await findComment(client, item, "github-issue-bot");
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`comment: ${comment}`);
 
         // If item is open

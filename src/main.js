@@ -83,7 +83,7 @@ async function main() {
         core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
         await postComment(client, itemType, item, message);
 
-        const comment = await findComment(client, issue, "github-issue-bot");
+        const comment = await findComment(client, item, "github-issue-bot");
         core.info(`comment: ${comment}`);
 
         // If item is open
