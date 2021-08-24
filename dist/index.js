@@ -6495,9 +6495,9 @@ async function main() {
 
 async function findComment(text) {
   const params = {
-    owner: issue.owner,
-    repo: issue.repo,
-    issue_number: issue.number,
+    owner: item.owner,
+    repo: item.repo,
+    issue_number: item.number,
   }
 
   for await (const { data: comments } of client.paginate.iterator(
