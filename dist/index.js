@@ -6412,7 +6412,7 @@ async function main() {
       const validations = validatePattern(issuePatterns, body);
       for (const validation of validations) {
         if (!validation.ok) {
-          throw new Error('Make sure to check all relevant checkboxes.');
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Make sure to check all relevant checkboxes.');
         }
       }
     } else {
