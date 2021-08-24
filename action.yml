@@ -1,0 +1,17 @@
+name: Issue Bot
+description: Handle issues
+author: Manuel Trezza
+branding:
+  icon: alert-circle
+  color: green
+runs:
+  using: node12
+  main: dist/index.js
+inputs:
+  pr-pattern:
+    description: Regular expression which the pull request body must match.
+  pr-message:
+    description: Message content to comment if the pull request fails to match the pattern.
+  repo-token:
+    description: GitHub token
+
