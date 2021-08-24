@@ -71,7 +71,7 @@ async function main() {
       issue_number: issue.number,
     }
     const comments = await client.rest.issues.listComments(params);
-    core.info(JSON.stringify(comments));
+    core.info(JSON.stringify(issue));
 
     // Compose comment
     core.info('Composing comment from template...');

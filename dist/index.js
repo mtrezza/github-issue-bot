@@ -6432,7 +6432,7 @@ async function main() {
       issue_number: issue.number,
     }
     const comments = await client.rest.issues.listComments(params);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(comments));
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(issue));
 
     // Compose comment
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Composing comment from template...');
