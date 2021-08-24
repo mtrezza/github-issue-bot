@@ -187,6 +187,7 @@ async function postComment(client, type, issue, message) {
 async function setItemState(client, type, issue, state) {
 
   // If item already has state
+  core.info(`setItemState: current state: ${issue.state}; new state: ${state}`);
   if (issue.state == state) {
     core.info(`setItemState: item already in state ${state}`);
     return;

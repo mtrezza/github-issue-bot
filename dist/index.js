@@ -6548,6 +6548,7 @@ async function postComment(client, type, issue, message) {
 async function setItemState(client, type, issue, state) {
 
   // If item already has state
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`setItemState: current state: ${issue.state}; new state: ${state}`);
   if (issue.state == state) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`setItemState: item already in state ${state}`);
     return;
