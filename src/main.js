@@ -98,11 +98,12 @@ async function main() {
         if (comment) {
 
           // Update existing comment
+          core.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
           await updateComment(comment.id, message);
         } else {
 
           // Post new comment
-          core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
+          core.info(`Adding new comment in ${itemType} #${item.number}.`);
           await postComment(message);
         }
 

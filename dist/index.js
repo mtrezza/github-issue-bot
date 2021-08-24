@@ -6459,11 +6459,12 @@ async function main() {
         if (comment) {
 
           // Update existing comment
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
           await updateComment(comment.id, message);
         } else {
 
           // Post new comment
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
           await postComment(message);
         }
 
