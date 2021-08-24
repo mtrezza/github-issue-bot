@@ -66,7 +66,7 @@ async function main() {
       // Validate issue
       const validations = validatePattern(issuePatterns, itemBody);
       core.info(`validations: ${JSON.stringify(validations)}`);
-      const invalidValidations = validations.filter(validation => { validation.ok === true });
+      const invalidValidations = validations.filter(validation => { !validation.ok });
       core.info(`invalidValidations: ${JSON.stringify(invalidValidations)}`);
 
       // If validation failed
