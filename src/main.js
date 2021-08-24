@@ -11,7 +11,14 @@ const ItemState = Object.freeze({
   'closed': 'closed',
 });
 
+/** The bot comment tag id. */
 const messageIdMetaTag = '\n<!-- github-issue-bot-meta-tag-id -->';
+/** The octokit client. */
+let client;
+/** The issue or pr item. */
+let item;
+/** The item type. */
+let itemType;
 
 async function main() {
   try {
@@ -32,7 +39,7 @@ async function main() {
     // Get client
     const context = github.context;
     const payload = context.payload;
-    const client = github.getOctokit(githubToken, { log: 'debug' });
+    client = github.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
     if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
@@ -41,7 +48,7 @@ async function main() {
     }
 
     // Determine item type
-    const itemType = payload.issue !== undefined
+    itemType = payload.issue !== undefined
       ? ItemType.issue
       : payload.pull_request !== undefined
         ? ItemType.pr
@@ -59,13 +66,15 @@ async function main() {
     }
 
     // Get event details
-    const item = context.issue;
+    item = context.issue;
     const itemBody = getItemBody(payload) || '';
     const itemState = getItemState(payload);
     core.info(`itemBody: ${JSON.stringify(itemBody)}`);
     core.info(`payload: ${JSON.stringify(payload)}`);
 
+    // If item type is issue
     if (itemType == ItemType.issue) {
+
       // Validate issue
       const validations = validatePattern(issuePatterns, itemBody);
       core.info(`validations: ${JSON.stringify(validations)}`);
@@ -79,19 +88,27 @@ async function main() {
         let message = composeComment(issueMessage, payload);
         message = message + messageIdMetaTag;
 
-        // Post comment
-        core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
-        await postComment(client, itemType, item, message);
-
-        const comment = await findComment(client, item, "github-issue-bot");
+        // Find existing bot comment
+        const comment = await findComment("github-issue-bot");
         core.info(`comment: ${JSON.stringify(comment)}`);
 
-        // If item is open
-        // if (itemState != ItemState.closed) {
+        // If no bot comment exists
+        if (comment) {
+          
+
+
+          // Update existing comment
+          await updateComment(comment.id, message);
+          
+        } else {
+          // Post new comment
+          core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
+          await postComment(message);
+        }
+
 
         //   // Close item
-        //   await setItemState(client, itemType, item, ItemState.closed);
-        // }
+        //   await setItemState(ItemState.closed);
 
       } else {
         core.info('All required checkboxes checked.');
@@ -105,17 +122,17 @@ async function main() {
   }
 }
 
-async function getIssueData(client, issue) {
-  const params = {
-    owner: issue.owner,
-    repo: issue.repo,
-    issue_number: issue.number,
-  }
-  const { data } = await client.rest.issues.get(params);
-  return data;
-}
+// async function getIssueData(issue) {
+//   const params = {
+//     owner: issue.owner,
+//     repo: issue.repo,
+//     issue_number: issue.number,
+//   }
+//   const { data } = await client.rest.issues.get(params);
+//   return data;
+// }
 
-async function findComment(client, issue, text) {
+async function findComment(text) {
   const params = {
     owner: issue.owner,
     repo: issue.repo,
@@ -163,22 +180,22 @@ function getItemState(payload) {
   }
 }
 
-async function postComment(client, type, issue, message) {
+async function postComment(message) {
   switch(type) {
     case ItemType.issue:
       await client.rest.issues.createComment({
-        owner: issue.owner,
-        repo: issue.repo,
-        issue_number: issue.number,
+        owner: item.owner,
+        repo: item.repo,
+        issue_number: item.number,
         body: message
       });
       break;
 
     case ItemType.pr:
       await client.rest.pulls.createReview({
-        owner: issue.owner,
-        repo: issue.repo,
-        pull_number: issue.number,
+        owner: item.owner,
+        repo: item.repo,
+        pull_number: item.number,
         body: message,
         event: 'COMMENT'
       });
@@ -186,22 +203,45 @@ async function postComment(client, type, issue, message) {
   }
 }
 
-async function setItemState(client, type, issue, state) {
+async function updateComment(id, message) {
+  switch(type) {
+    case ItemType.issue:
+      await client.rest.issues.updateComment({
+        owner: item.owner,
+        repo: item.repo,
+        comment_id: id,
+        body: message
+      });
+      break;
+
+    case ItemType.pr:
+      await client.rest.pulls.updateReview({
+        owner: item.owner,
+        repo: item.repo,
+        review_id: id,
+        body: message,
+        event: 'COMMENT'
+      });
+      break;
+  }
+}
+
+async function setItemState(state) {
   switch(type) {
     case ItemType.issue:
       await client.rest.issues.update({
-        owner: issue.owner,
-        repo: issue.repo,
-        issue_number: issue.number,
+        owner: item.owner,
+        repo: item.repo,
+        issue_number: item.number,
         state: state
       });
       break;
 
     case ItemType.pr:
       await client.rest.pulls.update({
-        owner: issue.owner,
-        repo: issue.repo,
-        pull_number: issue.number,
+        owner: item.owner,
+        repo: item.repo,
+        pull_number: item.number,
         state: state
       });
       break;
