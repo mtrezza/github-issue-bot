@@ -4,16 +4,16 @@ import * as github from '@actions/github';
 async function main() {
   try {
     // Define parameters
-    const prPatterns = [
+    const issuePatterns = [
       { regex: '(- [x] I am not disclosing a vulnerability)' },
     ];
 
     // Get action parameters
-    const prMessage = core.getInput('pr-message');
+    const issueMessage = core.getInput('issue-message');
 
     // Validate parameters
-    if (!prMessage) {
-      throw new Error('Parameter `pr-message` not set.');
+    if (!issueMessage) {
+      throw new Error('Parameter `issue-message` not set.');
     }
 
     // Get client
@@ -47,19 +47,18 @@ async function main() {
     const body = getBody(payload) || '';
 
     if (isIssue) {
-      // Do nothing on issue
-      return;
-    } else if (isPr) {
-      const validations = validatePattern(prPatterns, body);
+      const validations = validatePattern(issuePatterns, body);
       for (const validation of validations) {
         if (!validation.ok) {
           throw new Error('Make sure to check all relevant checkboxes.');
         }
       }
+    } else {
+      return;
     }
 
     core.debug('Composing comment from template...');
-    const message = composeComment(prMessage, payload)
+    const message = composeComment(issueMessage, payload)
     const issueType = isIssue ? 'issue' : 'pull request';
 
     core.debug(`Adding comment "${message}" to ${issueType} #${issue.number}...`);
