@@ -84,7 +84,7 @@ async function main() {
         await postComment(client, itemType, item, message);
 
         const comment = await findComment(client, item, "github-issue-bot");
-        core.info(`comment: ${comment}`);
+        core.info(`comment: ${JSON.stringify(comment)}`);
 
         // If item is open
         // if (itemState != ItemState.closed) {

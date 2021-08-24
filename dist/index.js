@@ -6445,7 +6445,7 @@ async function main() {
         await postComment(client, itemType, item, message);
 
         const comment = await findComment(client, item, "github-issue-bot");
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`comment: ${comment}`);
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`comment: ${JSON.stringify(comment)}`);
 
         // If item is open
         // if (itemState != ItemState.closed) {
