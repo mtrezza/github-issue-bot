@@ -6380,6 +6380,8 @@ let client;
 let item;
 /** The item type. */
 let itemType;
+/** The action trigger payload. */
+let payload;
 
 /** The bot comment tag id. */
 const messageIdMetaTag = '<!-- github-issue-bot-meta-tag-id -->';
@@ -6391,7 +6393,7 @@ async function main() {
 
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
-    const payload = context.payload;
+    payload = context.payload;
     client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { log: 'debug' });
 
     // Ensure action is opened issue or PR
