@@ -101,16 +101,16 @@ function composeMessage({ requireCheckboxes } = {}) {
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
   
   // Compose message
-  let message = `Thanks for opening this ${itemName}!\n\n`;
+  let message = `Thanks for opening this ${itemName}!`;
   if (requireCheckboxes) {
-    message += `Please make sure to check all required checkboxes at the top so we can look at this.`;
+    message += `\n\nPlease make sure to check all required checkboxes at the top so we can look at this.`;
   }
 
   // Fill placeholders
-  message = fillPlaceholders(message, payload);
+  //message = fillPlaceholders(message, payload);
 
   // Add meta tag
-  message += `\n${messageIdMetaTag}`;
+  //message += `\n${messageIdMetaTag}`;
 }
 
 async function findComment(text) {
