@@ -181,7 +181,7 @@ function getItemState(payload) {
 }
 
 async function postComment(message) {
-  switch(type) {
+  switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.createComment({
         owner: item.owner,
@@ -204,7 +204,7 @@ async function postComment(message) {
 }
 
 async function updateComment(id, message) {
-  switch(type) {
+  switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({
         owner: item.owner,
@@ -227,7 +227,7 @@ async function updateComment(id, message) {
 }
 
 async function setItemState(state) {
-  switch(type) {
+  switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.update({
         owner: item.owner,
