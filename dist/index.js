@@ -6370,6 +6370,7 @@ async function main() {
     ];
 
     // Get action parameters
+    const githubToken = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token');
     const issueMessage = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('issue-message');
 
     // Validate parameters
@@ -6380,7 +6381,7 @@ async function main() {
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
     const payload = context.payload;
-    const client = new _actions_github__WEBPACK_IMPORTED_MODULE_1__.GitHub(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true }));
+    const client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { required: true });
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {
