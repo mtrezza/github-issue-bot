@@ -6388,12 +6388,6 @@ async function main() {
   try {
     // Get action parameters
     const githubToken = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token');
-    const issueMessage = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('issue-message');
-
-    // Validate parameters
-    if (!issueMessage) {
-      throw new Error('Parameter `issue-message` not set.');
-    }
 
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
@@ -6491,7 +6485,7 @@ function composeMessage({ requireCheckboxes } = {}) {
   }
 
   // Fill placeholders
-  message = fillPlaceholders(issueMessage, payload);
+  message = fillPlaceholders(message, payload);
 
   // Add meta tag
   message += `\n${messageIdMetaTag}`;

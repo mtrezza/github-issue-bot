@@ -27,12 +27,6 @@ async function main() {
   try {
     // Get action parameters
     const githubToken = core.getInput('github-token');
-    const issueMessage = core.getInput('issue-message');
-
-    // Validate parameters
-    if (!issueMessage) {
-      throw new Error('Parameter `issue-message` not set.');
-    }
 
     // Get client
     const context = github.context;
@@ -130,7 +124,7 @@ function composeMessage({ requireCheckboxes } = {}) {
   }
 
   // Fill placeholders
-  message = fillPlaceholders(issueMessage, payload);
+  message = fillPlaceholders(message, payload);
 
   // Add meta tag
   message += `\n${messageIdMetaTag}`;
