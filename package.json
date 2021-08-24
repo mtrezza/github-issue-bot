@@ -33,7 +33,7 @@
     "prettier": "2.3.2"
   },
   "scripts": {
-    "build": "ncc build src/main.ts",
+    "build": "ncc build src/main.js",
     "lint": "eslint --cache ./",
     "lint-fix": "eslint --fix --cache ./",
     "prettier": "prettier --write {src}/{**/*,*}.js",
