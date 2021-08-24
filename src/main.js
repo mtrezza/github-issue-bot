@@ -62,6 +62,7 @@ async function main() {
         }
       }
     } else {
+      core.info('All required checkboxes checked.');
       return;
     }
 
@@ -142,7 +143,7 @@ function validatePattern(patterns, text) {
     const regex = new RegExp(pattern.regex);
 
     const validation = Object.assign({}, pattern);
-    validation.ok = text.match(regex);
+    validation.ok = regex.text(text);
     validations.push(validation);
   }
   return validations;
