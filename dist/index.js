@@ -6425,8 +6425,12 @@ async function main() {
       return;
     }
 
-
-    const issueData = await client.rest.issues.get(issue);
+    const params = {
+      owner: issue.owner,
+      repo: issue.repo,
+      issue_number: issue.number,
+    }
+    const issueData = await client.rest.issues.get(params);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(issueData));
 
     // Compose comment

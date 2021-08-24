@@ -64,8 +64,12 @@ async function main() {
       return;
     }
 
-
-    const issueData = await client.rest.issues.get(issue);
+    const params = {
+      owner: issue.owner,
+      repo: issue.repo,
+      issue_number: issue.number,
+    }
+    const issueData = await client.rest.issues.get(params);
     core.info(JSON.stringify(issueData));
 
     // Compose comment
