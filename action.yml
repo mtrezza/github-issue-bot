@@ -8,10 +8,6 @@ runs:
   using: node12
   main: dist/index.js
 inputs:
-  issue-pattern:
-    description: Regular expression which the issue body must match.
-  issue-message:
-    description: Message content to comment if the issue fails to match the pattern.
   github-token:
     description: GitHub token
 
