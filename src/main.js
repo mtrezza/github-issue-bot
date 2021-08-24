@@ -51,7 +51,7 @@ async function main() {
       const validations = validatePattern(issuePatterns, body);
       for (const validation of validations) {
         if (!validation.ok) {
-          throw new Error('Make sure to check all relevant checkboxes.');
+          core.debug('Make sure to check all relevant checkboxes.');
         }
       }
     } else {
