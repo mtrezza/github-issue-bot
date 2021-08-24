@@ -6425,20 +6425,68 @@ async function main() {
       return;
     }
 
+
+    const params = {
+      owner: issue.owner,
+      repo: issue.repo,
+      issue_number: issue.number,
+    }
+    const comments = await client.rest.issues.listComments(params);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(comments));
+
+    // Compose comment
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Composing comment from template...');
     const message = composeComment(issueMessage, payload)
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${issue.number}...`);
-
     // Post comment
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${issue.number}...`);
     await postComment(client, itemType, issue, message);
+
+    // Close item
     await closeItem(client, itemType, issue);
 
-  } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+  } catch (e) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
     return;
   }
 }
+
+async function getComment(client, issue, position) {
+
+  const params = {
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  }
+
+  // client.rest.issues.listComments
+
+  // if (inputs.direction == 'first') {
+  //   for await (const {data: comments} of octokit.paginate.iterator(
+  //     octokit.rest.issues.listComments,
+  //     parameters
+  //   )) {
+  //     // Search each page for the comment
+  //     const comment = comments.find(comment =>
+  //       findCommentPredicate(inputs, comment)
+  //     )
+  //     if (comment) return comment
+  //   }
+  // } else {
+  //   // direction == 'last'
+  //   const comments = await octokit.paginate(
+  //     octokit.rest.issues.listComments,
+  //     parameters
+  //   )
+  //   comments.reverse()
+  //   const comment = comments.find(comment =>
+  //     findCommentPredicate(inputs, comment)
+  //   )
+  //   if (comment) return comment
+  // }
+  // return undefined
+}
+
 
 async function postComment(client, type, issue, message) {
   switch(type) {
