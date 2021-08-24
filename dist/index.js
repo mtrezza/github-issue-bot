@@ -6504,7 +6504,7 @@ function validatePattern(patterns, text) {
     const regex = new RegExp(pattern.regex);
 
     const validation = Object.assign({}, pattern);
-    validation.ok = regex.text(text);
+    validation.ok = regex.test(text);
     validations.push(validation);
   }
   return validations;
