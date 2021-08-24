@@ -6374,8 +6374,6 @@ const ItemState = Object.freeze({
   'closed': 'closed',
 });
 
-/** The bot comment tag id. */
-const messageIdMetaTag = '\n<!-- github-issue-bot-meta-tag-id -->';
 /** The octokit client. */
 let client;
 /** The issue or pr item. */
@@ -6383,13 +6381,11 @@ let item;
 /** The item type. */
 let itemType;
 
+/** The bot comment tag id. */
+const messageIdMetaTag = '<!-- github-issue-bot-meta-tag-id -->';
+
 async function main() {
   try {
-    // Define parameters
-    const issuePatterns = [
-      { regex: '- \\[x\\] I am not disclosing a vulnerability' },
-    ];
-
     // Get action parameters
     const githubToken = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token');
     const issueMessage = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('issue-message');
@@ -6432,49 +6428,31 @@ async function main() {
     item = context.issue;
     const itemBody = getItemBody(payload) || '';
     const itemState = getItemState(payload);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`payload: ${JSON.stringify(payload)}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`itemBody: ${JSON.stringify(itemBody)}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`payload: ${JSON.stringify(payload)}`);
 
     // If item type is issue
     if (itemType == ItemType.issue) {
 
-      // Validate issue
-      const validations = validatePattern(issuePatterns, itemBody);
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
-      const invalidValidations = validations.filter(validation => !validation.ok);
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`invalidValidations: ${JSON.stringify(invalidValidations)}`);
+      // Ensure required checkboxes
+      const checkboxPatterns = [
+        { regex: '- \\[x\\] I am not disclosing a vulnerability' },
+      ];
 
       // If validation failed
-      if (invalidValidations.length > 0) {
-
-        // Compose comment
-        let message = composeComment(issueMessage, payload);
-        message = message + messageIdMetaTag;
-
-        // Find existing bot comment
-        const comment = await findComment("github-issue-bot");
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`comment: ${JSON.stringify(comment)}`);
-
-        // If no bot comment exists
-        if (comment) {
-
-          // Update existing comment
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
-          await updateComment(comment.id, message);
-        } else {
-
-          // Post new comment
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
-          await postComment(message);
-        }
-
-        //   // Close item
-        //   await setItemState(ItemState.closed);
-
+      if (validatePattern(checkboxPatterns, itemBody).filter(v => !v.ok).length > 0) {
+        
+        // Post error comment
+        const message = composeMessage({ requireCheckboxes: true });
+        await postComment(message);
+        return;
       } else {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
-        return;
       }
+
+      // Post success comment
+      const message = composeMessage();
+      await postComment(message);
     }
 
   } catch (e) {
@@ -6483,15 +6461,41 @@ async function main() {
   }
 }
 
-// async function getIssueData(issue) {
-//   const params = {
-//     owner: issue.owner,
-//     repo: issue.repo,
-//     issue_number: issue.number,
-//   }
-//   const { data } = await client.rest.issues.get(params);
-//   return data;
-// }
+async function postComment(message) {
+  // Find existing bot comment
+  const comment = await findComment("github-issue-bot");
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`comment: ${JSON.stringify(comment)}`);
+
+  // If no bot comment exists
+  if (comment) {
+
+    // Update existing comment
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
+    await updateComment(comment.id, message);
+  } else {
+
+    // Post new comment
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
+    await createComment(message);
+  }
+}
+
+function composeMessage({ requireCheckboxes } = {}) {
+  // Compose terms
+  const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
+  
+  // Compose message
+  let message = `Thanks for opening this ${itemName}!\n\n`;
+  if (requireCheckboxes) {
+    message += `Please make sure to check all required checkboxes at the top so we can look at this.`;
+  }
+
+  // Fill placeholders
+  message = fillPlaceholders(issueMessage, payload);
+
+  // Add meta tag
+  message += `\n${messageIdMetaTag}`;
+}
 
 async function findComment(text) {
   const params = {
@@ -6520,6 +6524,8 @@ function validatePattern(patterns, text) {
     validation.ok = regex.test(text);
     validations.push(validation);
   }
+  
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`validations: ${JSON.stringify(validations)}`);
   return validations;
 }
 
@@ -6541,7 +6547,7 @@ function getItemState(payload) {
   }
 }
 
-async function postComment(message) {
+async function createComment(message) {
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.createComment({
@@ -6609,7 +6615,7 @@ async function setItemState(state) {
   }
 }
 
-function composeComment(message, params) {
+function fillPlaceholders(message, params) {  
   return Function(...Object.keys(params), `return \`${message}\``)(...Object.values(params));
 }
 
