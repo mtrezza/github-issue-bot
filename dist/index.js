@@ -6362,6 +6362,11 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
+const ItemType = Object.freeze({
+  'pr': 'pr',
+  'issue': 'issue',
+});
+
 async function main() {
   try {
     // Define parameters
@@ -6385,17 +6390,18 @@ async function main() {
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('No issue or PR opened or reopened, skipping.');
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('No issue or PR opened or reopened, skipping.');
       return;
     }
 
     // Ensure action is triggered by issue or PR
     const isIssue = !!payload.issue;
     const isPr = !!payload.pull_request;
+    const itemType = isIssue ? ItemType.issue : ItemType.pr;
 
     // If action was not invoked due to issue or PR
     if (!isIssue && !isPr) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull request or issue, skipping.');
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Not a pull request or issue, skipping.');
       return;
     }
 
@@ -6412,33 +6418,40 @@ async function main() {
       const validations = validatePattern(issuePatterns, body);
       for (const validation of validations) {
         if (!validation.ok) {
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Make sure to check all relevant checkboxes.');
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Make sure to check all relevant checkboxes.');
         }
       }
     } else {
       return;
     }
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Composing comment from template...');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Composing comment from template...');
     const message = composeComment(issueMessage, payload)
-    const issueType = isIssue ? 'issue' : 'pull request';
 
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Adding comment "${message}" to ${issueType} #${issue.number}...`);
-    if (isIssue) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${issue.number}...`);
+
+    // Post comment
+    await postComment(client, itemType, issue, message);
+    await closeItem(client, itemType, issue);
+
+  } catch (error) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+    return;
+  }
+}
+
+async function postComment(client, type, issue, message) {
+  switch(type) {
+    case ItemType.issue:
       await client.rest.issues.createComment({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         body: message
       });
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Closing issue...');
-      await client.rest.issues.update({
-        owner: issue.owner,
-        repo: issue.repo,
-        issue_number: issue.number,
-        state: 'closed'
-      });
-    } else {
+      break;
+
+    case ItemType.pr:
       await client.rest.pulls.createReview({
         owner: issue.owner,
         repo: issue.repo,
@@ -6446,17 +6459,29 @@ async function main() {
         body: message,
         event: 'COMMENT'
       });
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Closing PR...');
+      break;
+  }
+}
+
+async function closeItem(client, type, issue) {
+  switch(type) {
+    case ItemType.issue:
+      await client.rest.issues.update({
+        owner: issue.owner,
+        repo: issue.repo,
+        issue_number: issue.number,
+        state: 'closed'
+      });
+      break;
+
+    case ItemType.pr:
       await client.rest.pulls.update({
         owner: issue.owner,
         repo: issue.repo,
         pull_number: issue.number,
         state: 'closed'
       });
-    }
-  } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
-    return;
+      break;
   }
 }
 
