@@ -6533,7 +6533,7 @@ async function postComment(message) {
   if (comment) {
 
     // Update existing comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating comment ${comment.id} in ${itemType} #${item.number} with message ${message}.`);
     await updateComment(comment.id, message);
   } else {
 
@@ -6544,6 +6544,7 @@ async function postComment(message) {
 }
 
 async function createComment(message) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.createComment({
@@ -6567,8 +6568,7 @@ async function createComment(message) {
 }
 
 async function updateComment(id, message) {
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: id: ${id}, message: ${message}`);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: itemType: ${itemType}, item: ${item}`);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({

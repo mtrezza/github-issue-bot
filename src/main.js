@@ -172,7 +172,7 @@ async function postComment(message) {
   if (comment) {
 
     // Update existing comment
-    core.info(`Updating comment ${comment.id} in ${itemType} #${item.number}.`);
+    core.info(`Updating comment ${comment.id} in ${itemType} #${item.number} with message ${message}.`);
     await updateComment(comment.id, message);
   } else {
 
@@ -183,6 +183,7 @@ async function postComment(message) {
 }
 
 async function createComment(message) {
+  core.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.createComment({
@@ -206,8 +207,7 @@ async function createComment(message) {
 }
 
 async function updateComment(id, message) {
-  core.debug(`updateComment: id: ${id}, message: ${message}`);
-  core.debug(`updateComment: itemType: ${itemType}, item: ${item}`);
+  core.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch(itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({
