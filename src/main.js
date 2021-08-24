@@ -9,6 +9,7 @@ async function main() {
     ];
 
     // Get action parameters
+    const githubToken = core.getInput('github-token');
     const issueMessage = core.getInput('issue-message');
 
     // Validate parameters
@@ -19,7 +20,7 @@ async function main() {
     // Get client
     const context = github.context;
     const payload = context.payload;
-    const client = new github.GitHub(core.getInput('github-token', { required: true }));
+    const client = github.getOctokit(githubToken, { required: true });
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {
