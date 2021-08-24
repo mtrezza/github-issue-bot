@@ -1,11 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+/** The item types. */
 const ItemType = Object.freeze({
   'pr': 'pr',
   'issue': 'issue',
 });
 
+/** The item states. */
 const ItemState = Object.freeze({
   'open': 'open',
   'closed': 'closed',
@@ -94,18 +96,15 @@ async function main() {
 
         // If no bot comment exists
         if (comment) {
-          
-
 
           // Update existing comment
           await updateComment(comment.id, message);
-          
         } else {
+
           // Post new comment
           core.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
           await postComment(message);
         }
-
 
         //   // Close item
         //   await setItemState(ItemState.closed);

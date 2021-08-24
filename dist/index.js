@@ -6362,11 +6362,13 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
+/** The item types. */
 const ItemType = Object.freeze({
   'pr': 'pr',
   'issue': 'issue',
 });
 
+/** The item states. */
 const ItemState = Object.freeze({
   'open': 'open',
   'closed': 'closed',
@@ -6455,18 +6457,15 @@ async function main() {
 
         // If no bot comment exists
         if (comment) {
-          
-
 
           // Update existing comment
           await updateComment(comment.id, message);
-          
         } else {
+
           // Post new comment
           _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
           await postComment(message);
         }
-
 
         //   // Close item
         //   await setItemState(ItemState.closed);
