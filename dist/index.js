@@ -6394,13 +6394,15 @@ async function main() {
       return;
     }
 
-    // Ensure action is triggered by issue or PR
-    const isIssue = !!payload.issue;
-    const isPr = !!payload.pull_request;
-    const itemType = isIssue ? ItemType.issue : ItemType.pr;
+    // Determine item type
+    const itemType = payload.issue !== undefined
+      ? ItemType.issue
+      : payload.pull_request !== undefined
+        ? ItemType.pr
+        : undefined;
 
     // If action was not invoked due to issue or PR
-    if (!isIssue && !isPr) {
+    if (itemType === undefined) {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Not a pull request or issue, skipping.');
       return;
     }
@@ -6410,41 +6412,39 @@ async function main() {
       throw new Error('No sender provided by GitHub.');
     }
 
+    // Get issue
+    // const { issueBody } = await getIssueData(client, item);
+    // core.info(`body: ${JSON.stringify(issueBody)}`);
+
     // Get event details
     const item = context.issue;
     const itemBody = getBody(payload) || '';
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
 
-    if (isIssue) {
+    if (itemType == ItemType.issue) {
+      // Validate issue
       const validations = validatePattern(issuePatterns, itemBody);
-      for (const validation of validations) {
-        if (!validation.ok) {
-          _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Make sure to check all relevant checkboxes.');
-        }
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
+      const invalidValidations = validations.filter(validation => { validation.ok });
+
+      // If validation failed
+      if (invalidValidations.length > 0) {
+
+        // Compose comment
+        const message = composeComment(issueMessage, payload)
+
+        // Post comment
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
+        await postComment(client, itemType, item, message);
+
+        // Close item
+        // await closeItem(client, itemType, item);
+
+      } else {
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
+        return;
       }
-    } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
-      return;
     }
-
-    // Get issue
-    // const { issueBody } = await getIssueData(client, item);
-    // core.info(`body: ${JSON.stringify(issueBody)}`);
-
-    // Validate issue
-    const validations = validatePattern(issuePatterns, itemBody);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
-
-
-    // Compose comment
-    const message = composeComment(issueMessage, payload)
-
-    // Post comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}.`);
-    await postComment(client, itemType, item, message);
-
-    // Close item
-    await closeItem(client, itemType, item);
 
   } catch (e) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
