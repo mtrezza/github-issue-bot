@@ -177,7 +177,7 @@ async function postComment(message) {
   } else {
 
     // Post new comment
-    core.info(`Adding new comment in ${itemType} #${item.number}.`);
+    core.info(`Adding new comment in ${itemType} #${item.number} with message ${message}.`);
     await createComment(message);
   }
 }

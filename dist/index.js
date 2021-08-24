@@ -6538,7 +6538,7 @@ async function postComment(message) {
   } else {
 
     // Post new comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number}.`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number} with message ${message}.`);
     await createComment(message);
   }
 }
