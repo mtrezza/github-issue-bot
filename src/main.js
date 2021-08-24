@@ -19,7 +19,7 @@ async function main() {
     // Get client
     const context = github.context;
     const payload = context.payload;
-    const client = new github.GitHub(core.getInput('repo-token', { required: true }));
+    const client = new github.GitHub(core.getInput('github-token', { required: true }));
 
     // Ensure action is opened issue or PR
     if ([!'opened', 'reopened'].includes(payload.action)) {

@@ -12,6 +12,6 @@ inputs:
     description: Regular expression which the pull request body must match.
   pr-message:
     description: Message content to comment if the pull request fails to match the pattern.
-  repo-token:
+  github-token:
     description: GitHub token
 
