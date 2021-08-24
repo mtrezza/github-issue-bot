@@ -6411,11 +6411,12 @@ async function main() {
     }
 
     // Get event details
-    const issue = context.issue;
-    const body = getBody(payload) || '';
+    const item = context.issue;
+    const itemBody = getBody(payload) || '';
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`itemBody: ${JSON.stringify(itemBody)}`);
 
     if (isIssue) {
-      const validations = validatePattern(issuePatterns, body);
+      const validations = validatePattern(issuePatterns, itemBody);
       for (const validation of validations) {
         if (!validation.ok) {
           _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Make sure to check all relevant checkboxes.');
@@ -6425,29 +6426,40 @@ async function main() {
       return;
     }
 
-    const params = {
-      owner: issue.owner,
-      repo: issue.repo,
-      issue_number: issue.number,
-    }
-    const issueData = await client.rest.issues.get(params);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(JSON.stringify(issueData));
+    // Get issue
+    const { issueBody } = await getIssueData(client, item);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`body: ${JSON.stringify(issueBody)}`);
+
+    // Validate issue
+    const validations = validatePattern(issuePatterns, itemBody);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validations: ${JSON.stringify(validations)}`);
+
+
 
     // Compose comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Composing comment from template...');
     const message = composeComment(issueMessage, payload)
 
     // Post comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${issue.number}...`);
-    await postComment(client, itemType, issue, message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding comment "${message}" to ${itemType} #${item.number}...`);
+    await postComment(client, itemType, item, message);
 
     // Close item
-    await closeItem(client, itemType, issue);
+    await closeItem(client, itemType, item);
 
   } catch (e) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
     return;
   }
+}
+
+async function getIssueData(client, issue) {
+  const params = {
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  }
+  const { data } = await client.rest.issues.get(params);
+  return data;
 }
 
 async function getComment(client, issue, position) {

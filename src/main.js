@@ -50,11 +50,12 @@ async function main() {
     }
 
     // Get event details
-    const issue = context.issue;
-    const body = getBody(payload) || '';
+    const item = context.issue;
+    const itemBody = getBody(payload) || '';
+    core.info(`itemBody: ${JSON.stringify(itemBody)}`);
 
     if (isIssue) {
-      const validations = validatePattern(issuePatterns, body);
+      const validations = validatePattern(issuePatterns, itemBody);
       for (const validation of validations) {
         if (!validation.ok) {
           core.info('Make sure to check all relevant checkboxes.');
@@ -64,29 +65,40 @@ async function main() {
       return;
     }
 
-    const params = {
-      owner: issue.owner,
-      repo: issue.repo,
-      issue_number: issue.number,
-    }
-    const issueData = await client.rest.issues.get(params);
-    core.info(JSON.stringify(issueData));
+    // Get issue
+    const { issueBody } = await getIssueData(client, item);
+    core.info(`body: ${JSON.stringify(issueBody)}`);
+
+    // Validate issue
+    const validations = validatePattern(issuePatterns, itemBody);
+    core.info(`validations: ${JSON.stringify(validations)}`);
+
+
 
     // Compose comment
-    core.info('Composing comment from template...');
     const message = composeComment(issueMessage, payload)
 
     // Post comment
-    core.info(`Adding comment "${message}" to ${itemType} #${issue.number}...`);
-    await postComment(client, itemType, issue, message);
+    core.info(`Adding comment "${message}" to ${itemType} #${item.number}...`);
+    await postComment(client, itemType, item, message);
 
     // Close item
-    await closeItem(client, itemType, issue);
+    await closeItem(client, itemType, item);
 
   } catch (e) {
     core.setFailed(e.message);
     return;
   }
+}
+
+async function getIssueData(client, issue) {
+  const params = {
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  }
+  const { data } = await client.rest.issues.get(params);
+  return data;
 }
 
 async function getComment(client, issue, position) {
